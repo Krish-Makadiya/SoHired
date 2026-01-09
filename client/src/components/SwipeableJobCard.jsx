@@ -51,43 +51,68 @@ export function SwipeableJobCard({ job, onSwipe, style }) {
 
 
                 <div className="flex flex-col xl:flex-row h-full">
-                    <CardHeader className="px-8 pt-8 pb-6 w-full xl:w-1/2 border-b xl:border-b-0 xl:border-r bg-neutral-50/50 dark:bg-neutral-900/50">
-                        <div className="flex flex-col md:flex-row justify-between gap-6 md:items-start">
-                            <div className="space-y-4 flex-1">
-                                <div className="flex items-center gap-2">
-                                    <Badge variant="secondary" className="rounded-full px-4 py-1">
-                                        Full Time
-                                    </Badge>
-                                    {job.language && (
-                                        <Badge variant="outline" className="rounded-full px-4 py-1 capitalize border-primary/20 text-primary">
-                                            {job.language}
+                    <CardHeader className="px-8 pt-8 pb-6 w-full xl:w-1/2 border-b xl:border-b-0 xl:border-r bg-neutral-50/50 dark:bg-neutral-900/50 relative">
+                        <div className="flex flex-col h-full justify-between gap-8">
+                            <div className="space-y-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="h-24 w-24 rounded-full bg-white dark:bg-neutral-800 p-2 shadow-md  flex items-center justify-center overflow-hidden shrink-0">
+                                        {job.companyLogo ? (
+                                            <img
+                                                src={job.companyLogo}
+                                                alt={job.companyName}
+                                                className="w-full h-full object-cover    rounded-full"
+                                            />
+                                        ) : (
+                                            <Building2 className="w-10 h-10 text-neutral-400" />
+                                        )}
+                                    </div>
+                                    <div className="flex flex-col items-end gap-2">
+                                        <Badge variant="secondary" className="rounded-full px-4 py-1.5 font-medium">
+                                            Full Time
                                         </Badge>
-                                    )}
-                                </div>
-                                <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground">
-                                    {job.title}
-                                </h1>
-                                <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground text-lg">
-                                    <div className="flex items-center gap-2">
-                                        <Building2 className="w-5 h-5 text-primary" />
-                                        <span className="font-semibold text-foreground">{job.companyName}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="w-5 h-5" />
-                                        <span>{job.location}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-5 h-5" />
-                                        <span>Posted {formatDate(job.updatedAt)}</span>
+                                        {job.language && (
+                                            <Badge variant="outline" className="rounded-full px-4 py-1.5 capitalize border-primary/20 text-primary bg-primary/5">
+                                                {new Intl.DisplayNames(['en'], { type: 'language' }).of(job.language) || job.language}
+                                            </Badge>
+                                        )}
                                     </div>
                                 </div>
-                                <Button size="lg" className="w-full gap-2 text-base font-bold shadow-lg shadow-primary/20" asChild>
-                                    <a href={job.link} target="_blank" rel="noopener noreferrer">
-                                        Apply Now
-                                        <ExternalLink className="w-4 h-4" />
-                                    </a>
-                                </Button>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 text-primary font-bold text-lg mb-1">
+                                            <span className="tracking-tight">{job.companyName}</span>
+                                        </div>
+                                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-foreground leading-[0.95]">
+                                            {job.title}
+                                        </h1>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3 text-muted-foreground text-base">
+                                        <div className="flex items-center gap-2.5">
+                                            <MapPin className="w-5 h-5 shrink-0 text-neutral-500" />
+                                            <span className="font-medium">{job.location}</span>
+                                        </div>
+                                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-neutral-500">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4 shrink-0" />
+                                                <span>Posted {formatDate(job.createdAt)}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                                                <span>Updated {formatDate(job.updatedAt)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
+                            <Button size="lg" className="w-full gap-2 text-base font-bold h-14 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all rounded-xl" asChild>
+                                <a href={job.link} target="_blank" rel="noopener noreferrer">
+                                    Apply Now
+                                    <ExternalLink className="w-5 h-5" />
+                                </a>
+                            </Button>
                         </div>
                     </CardHeader>
 
