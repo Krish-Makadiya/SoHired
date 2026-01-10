@@ -51,7 +51,7 @@ const Roadmaps = () => {
             if (!user) return;
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/api/roadmaps/${user.id}`
+                    `${import.meta.env.VITE_SERVER_API}/api/roadmaps/${user.id}`
                 );
                 setRoadmaps(response.data);
             } catch (error) {
@@ -96,9 +96,12 @@ const Roadmaps = () => {
         const updatedRoadmap = { ...selectedRoadmap, steps: updatedSteps };
         setSelectedRoadmap(updatedRoadmap);
 
+        // Update main roadmaps list immediately
+        setRoadmaps(prev => prev.map(r => r.id === selectedRoadmap.id ? updatedRoadmap : r));
+
         // Update Backend
         try {
-            await axios.put(`http://localhost:3000/api/roadmaps/${user.id}/${selectedRoadmap.id}/progress`, {
+            await axios.put(`${import.meta.env.VITE_SERVER_API}/api/roadmaps/${user.id}/${selectedRoadmap.id}/progress`, {
                 stepIndex: currentStepIndex,
                 status: "Completed",
                 score: score
@@ -144,8 +147,10 @@ const Roadmaps = () => {
             let normalizedStatus = 'locked';
 
             // Allow DB value to override, otherwise default first to in-progress
-            if (step.status === 'Completed') normalizedStatus = 'completed';
-            else if (step.status === 'In Progress') normalizedStatus = 'in-progress';
+            // Normalize status (case-insensitive)
+            const s = (step.status || '').toLowerCase();
+            if (s === 'completed') normalizedStatus = 'completed';
+            else if (s === 'in progress') normalizedStatus = 'in-progress';
             else if (index === 0 && (!step.status || step.status === 'Not Started')) normalizedStatus = 'in-progress';
 
             // If previous is completed, current should be at least in-progress
@@ -191,7 +196,7 @@ const Roadmaps = () => {
                 <div className="max-w-6xl w-full space-y-8 relative z-10 pt-12">
                     <div className="text-center space-y-4 mb-16 animate-in fade-in slide-in-from-top-4 duration-700">
                         <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-white">
-                            <span className="text-indigo-600 dark:text-indigo-400">Skill</span> Roadmap
+                            <span className="text-indigo-600 dark:text-indigo-400">Skill-Gap</span> Roadmap
                         </h1>
                         <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto font-medium">
                             {selectedRoadmap.roadmapTitle || "Your Personalized Learning Path"}

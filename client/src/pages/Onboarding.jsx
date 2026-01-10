@@ -79,7 +79,7 @@ const Onboarding = () => {
                     console.warn("Could not update metadata (likely restricted permissions):", err)
                 }
             }
-            await axios.post("http://localhost:3000/api/user/onboarding", {
+            await axios.post(`${import.meta.env.VITE_SERVER_API}/api/user/onboarding`, {
                 clerkId: user.id,
                 role: selectedRole,
                 skills: selectedSkills,
@@ -87,7 +87,7 @@ const Onboarding = () => {
                 companies: selectedCompanies
             })
 
-            await axios.post('http://localhost:5678/webhook-test/get-filtered-jobs', {
+            await axios.post('http://localhost:5678/webhook/get-filtered-jobs', {
                 userId: user.id,
                 role: selectedRole,
                 skills: selectedSkills,

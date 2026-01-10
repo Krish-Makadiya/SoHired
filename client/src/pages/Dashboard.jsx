@@ -21,7 +21,7 @@ const Dashboard = () => {
         swipeQueue.current = []; // Clear queue immediately to avoid duplicates
 
         try {
-            await axios.post(`http://localhost:3000/api/jobs/batch-actions/${user.id}`, {
+            await axios.post(`${import.meta.env.VITE_SERVER_API}/api/jobs/batch-actions/${user.id}`, {
                 actions: actionsToProcess
             });
             console.log("Batched swipes processed:", actionsToProcess.length);
@@ -43,7 +43,7 @@ const Dashboard = () => {
         if (!user) return;
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:3000/api/jobs/${user.id}`, {
+            const response = await axios.get(`${import.meta.env.VITE_SERVER_API}/api/jobs/${user.id}`, {
                 params: { page, limit: 5 }
             });
             console.log(response);
@@ -78,15 +78,25 @@ const Dashboard = () => {
                 lastName: "Makadiya",
                 email: "krishmakadiya2005@gmail.com",
                 phone: "9876543210",
-                country: "+91",
-                linkedin: "https://linkedin.com/in/krishmakadiya2005",
-                website: "https://krishmakadiya.com",
-                location: "Kolhapur",
+                location: "Kolhapur, Maharashtra, India", // Matches Greenhouse location search
+
+                // Custom Fields identified
+                linkedin: "https://www.linkedin.com/in/krish-makadiya/",
+                website: "https://krish-makadiya.vercel.app/",
+
+                // Demographics & Custom Questions
+                // Note: These need to match the specific dropdown text exactly
+                sponsorship: "No", // "Will you now or in the future require sponsorship..."
+                howDidYouHear: "Other",
+                gender: "Male", // "Gender Identity"
+
+                // Checkbox boolean
+                consent: true // "Demographic Data Consent"
             };
 
             if (window.chrome && chrome.runtime) {
                 // 3. Send the message
-                chrome.runtime.sendMessage("mnkbodchklclmmafaclmnjcblmdpgfob", {
+                chrome.runtime.sendMessage("iobcmkfkokblfjghlmlemaoabgloijlk", {
                     action: "TRIGGER_AUTOFILL",
                     url: job.link,
                     payload: staticData
@@ -101,7 +111,7 @@ const Dashboard = () => {
 
             // 4. Save job immediately (Right Swipe)
             try {
-                await axios.post(`http://localhost:3000/api/jobs/save-job/${user.id}`, job);
+                await axios.post(`${import.meta.env.VITE_SERVER_API}/api/jobs/save-job/${user.id}`, job);
                 console.log("Job saved successfully");
             } catch (error) {
                 console.error("Error saving job:", error);

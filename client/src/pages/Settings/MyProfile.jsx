@@ -66,7 +66,7 @@ const MyProfile = () => {
             if (clerkId) {
                 try {
                     // Correct Axios syntax: url, then config object
-                    const response = await axios.get(`http://localhost:3000/api/user/user-profile/${clerkId}`);
+                    const response = await axios.get(`${import.meta.env.VITE_SERVER_API}/api/user/user-profile/${clerkId}`);
 
                     if (response.data) {
                         const userData = response.data;
@@ -113,7 +113,7 @@ const MyProfile = () => {
         data.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5678/webhook-test/parse-resume', data, {
+            const response = await axios.post('http://localhost:5678/webhook/parse-resume', data, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -140,7 +140,7 @@ const MyProfile = () => {
                 imageUrl: user?.imageUrl
             }
 
-            const response = await axios.post("http://localhost:3000/api/user/user-profile", payload)
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_API}/api/user/user-profile`, payload)
             console.log("Profile Saved Successfully:", response.data)
         } catch (error) {
             console.error("Error saving profile to backend:", error)

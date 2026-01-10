@@ -33,7 +33,7 @@ const AcceptedJobs = () => {
       if (!user) return;
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/jobs/saved-jobs/${user.id}`
+          `${import.meta.env.VITE_SERVER_API}/api/jobs/saved-jobs/${user.id}`
         );
         setAcceptedJobs(response.data);
       } catch (error) {

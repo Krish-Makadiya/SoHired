@@ -84,15 +84,17 @@ export const updateRoadmapProgress = async (req, res) => {
         // Update current step
         steps[stepIndex] = {
             ...steps[stepIndex],
-            status: status,
-            quizScore: score, // Save score if provided
+            status: status, // Expected: "Completed"
+            quizScore: score,
         };
 
-        // Unlock next step if completed
-        if (status === "completed" && stepIndex + 1 < steps.length) {
+        // Unlock next step if completed (check both cases just to be safe, but we prefer Title Case)
+        const isCompleted = status === "Completed" || status === "completed";
+
+        if (isCompleted && stepIndex + 1 < steps.length) {
             steps[stepIndex + 1] = {
                 ...steps[stepIndex + 1],
-                status: "in-progress", // Unlock next step
+                status: "In Progress", // Unlock next step with Title Case to match frontend expectations
             };
         }
 

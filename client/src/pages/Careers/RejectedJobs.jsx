@@ -34,7 +34,7 @@ const RejectedJobs = () => {
       if (!user) return;
       try {
         const response = await axios.get(
-          `http://localhost:3000/api/jobs/passed-jobs/${user.id}`
+          `${import.meta.env.VITE_SERVER_API}/api/jobs/passed-jobs/${user.id}`
         );
         setRejectedJobs(response.data);
       } catch (error) {

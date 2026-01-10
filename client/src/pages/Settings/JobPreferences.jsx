@@ -36,7 +36,7 @@ const JobPreferences = () => {
         const fetchUserData = async () => {
             if (user?.id) {
                 try {
-                    const response = await axios.get(`http://localhost:3000/api/user/user-profile/${user.id}`)
+                    const response = await axios.get(`${import.meta.env.VITE_SERVER_API}/api/user/user-profile/${user.id}`)
                     if (response.data) {
                         const userData = response.data
 
@@ -104,7 +104,7 @@ const JobPreferences = () => {
                 skills: skillsArray // Save as array to match onboarding structure
             }
 
-            const response = await axios.post("http://localhost:3000/api/user/user-profile", payload)
+            const response = await axios.post(`${import.meta.env.VITE_SERVER_API}/api/user/user-profile`, payload)
             console.log("Preferences Saved Successfully:", response.data)
         } catch (error) {
             console.error("Error saving preferences:", error)

@@ -16,7 +16,7 @@ const CourseSuggestions = () => {
         const fetchSavedJobs = async () => {
             if (!user) return;
             try {
-                const response = await axios.get(`http://localhost:3000/api/jobs/saved-jobs/${user.id}`);
+                const response = await axios.get(`${import.meta.env.VITE_SERVER_API}/api/jobs/saved-jobs/${user.id}`);
                 setSavedJobs(response.data);
             } catch (error) {
                 console.error("Error fetching saved jobs:", error);
