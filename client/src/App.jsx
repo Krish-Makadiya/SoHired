@@ -10,6 +10,7 @@ import MyProfile from "./pages/Settings/MyProfile";
 import CourseSuggestions from "./pages/Careers/CourseSuggestions";
 import AcceptedJobs from "./pages/Careers/AcceptedJobs";
 import RejectedJobs from "./pages/Careers/RejectedJobs";
+import Roadmaps from "./pages/Careers/Roadmaps";
 
 const App = () => {
 
@@ -61,6 +62,11 @@ const App = () => {
                 <Route path="rejected-jobs" element={
                     <ProtectedRoute>
                         <RejectedJobs />
+                    </ProtectedRoute>
+                } />
+                <Route path="roadmaps" element={
+                    <ProtectedRoute>
+                        <Roadmaps />
                     </ProtectedRoute>
                 } />
             </Route>

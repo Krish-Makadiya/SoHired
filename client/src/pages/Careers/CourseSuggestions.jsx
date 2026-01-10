@@ -64,6 +64,7 @@ const CourseSuggestions = () => {
 
             const payload = {
                 userId: user.id,
+                jobId: job.id,
                 skills: skills,
                 context: `Roadmap for ${job.title} at ${job.companyName}`
             };

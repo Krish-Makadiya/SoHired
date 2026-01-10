@@ -68,6 +68,10 @@ const data = {
                     title: "Course Suggestions",
                     url: "/dashboard/course-suggestions",
                 },
+                {
+                    title: "Roadmaps",
+                    url: "/dashboard/roadmaps",
+                },
             ],
         },
         {
