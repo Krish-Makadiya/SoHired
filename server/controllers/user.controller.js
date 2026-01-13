@@ -2,7 +2,15 @@ import { db } from "../config/firebase.js";
 
 export const onboardingController = async (req, res) => {
     try {
-        const { role, skills, companies, countries, clerkId } = req.body;
+        const {
+            role,
+            experienceLevel,
+            jobTypes,
+            skills,
+            companies,
+            countries,
+            clerkId,
+        } = req.body;
 
         if (!clerkId) {
             return res.status(400).json({ message: "Clerk ID is required" });
@@ -11,9 +19,26 @@ export const onboardingController = async (req, res) => {
         await db
             .collection("users")
             .doc(clerkId)
-            .set({ role, skills, companies, countries }, { merge: true });
+            .set(
+                {
+                    role,
+                    experienceLevel,
+                    jobTypes,
+                    skills,
+                    companies,
+                    countries,
+                },
+                { merge: true }
+            );
 
-        console.log("Onboarding Data:", { role, skills, companies, countries });
+        console.log("Onboarding Data:", {
+            role,
+            experienceLevel,
+            jobTypes,
+            skills,
+            companies,
+            countries,
+        });
         res.json({ message: "User onboarding successful" });
     } catch (error) {
         console.error("Error in onboarding:", error);

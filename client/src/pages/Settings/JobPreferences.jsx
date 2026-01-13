@@ -148,16 +148,22 @@ const JobPreferences = () => {
                                         options={[
                                             "Frontend Developer",
                                             "Backend Developer",
-                                            "Full Stack Developer",
+                                            "Fullstack Developer",
                                             "Mobile Developer",
                                             "DevOps Engineer",
-                                            "Data Scientist",
-                                            "Machine Learning Engineer",
                                             "UI/UX Designer",
+                                            "Data Scientist",
                                             "Product Manager",
-                                            "QA Engineer",
+                                            "Software Engineer",
+                                            "Machine Learning Engineer",
+                                            "Cybersecurity Analyst",
+                                            "Data Engineer",
+                                            "SRE",
+                                            "Cloud Architect",
+                                            "AI Engineer",
                                             "System Administrator",
-                                            "Network Engineer"
+                                            "Network Engineer",
+                                            "QA Engineer"
                                         ]}
                                         multiple={true}
                                         placeholder={formData.role.length > 0 ? "Add more roles..." : "Select Desired Role(s)"}

@@ -1,43 +1,178 @@
 import { Button } from "@/components/ui/button"
 import { useUser } from "@clerk/clerk-react"
 import axios from "axios"
-import { useState } from "react"
+import { useState, useMemo, useRef, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Select } from "@/components/ui/select"
 
 const rolesList = [
     "Frontend Developer", "Backend Developer", "Fullstack Developer",
     "Mobile Developer", "DevOps Engineer", "UI/UX Designer",
-    "Data Scientist", "Product Manager"
+    "Data Scientist", "Product Manager", "Software Engineer",
+    "Machine Learning Engineer", "Cybersecurity Analyst", "Data Engineer",
+    "SRE", "Cloud Architect", "AI Engineer", "System Administrator",
+    "Network Engineer", "QA Engineer"
 ]
 
 const skillsList = [
     "React", "Vue", "Angular", "Node.js", "Python", "Java", "Go",
     "Rust", "Docker", "Kubernetes", "AWS", "Figma", "TypeScript",
-    "TailwindCSS", "PostgreSQL", "MongoDB"
+    "TailwindCSS", "PostgreSQL", "MongoDB", "C++", "C#", "Azure",
+    "GCP", "GraphQL", "Next.js", "Redis", "Terraform", "Linux",
+    "Git", "Jenkins", "SQL", "NoSQL", "Swift", "Kotlin", "Flutter",
+    "React Native"
 ]
 
 const countriesList = [
-    "United States", "United Kingdom", "Canada", "Germany", "India", "Australia", "Remote"
+    "United States", "United Kingdom", "Canada", "Germany", "India", "Australia",
+    "Remote", "France", "Netherlands", "Singapore", "Japan", "Brazil",
+    "Sweden", "Switzerland", "Ireland", "Spain", "Italy"
 ]
 
 const companiesList = [
-    "Google", "Microsoft", "Meta", "Amazon", "Netflix", "Apple", "Tesla", "Adobe", "Spotify", "Uber", "Airbnb"
+    "Airbnb", "Dropbox", "Pinterest", "Reddit", "Twilio", "HubSpot",
+    "Notion", "Zapier", "Asana", "Lyft", "Figma", "Cloudflare",
+    "Postman", "Miro", "Mixpanel", "Stripe", "Coinbase", "Robinhood",
+    "Instacart", "DoorDash", "Slack", "Zoom"
 ]
+
+// Mapped for logic checks (Key = Keyword in Job Title/Desc, Value = Your Category)
+const experienceLevelsList = {
+    "intern": "Internship",
+    "co-op": "Internship",
+    "graduate": "Entry Level",
+    "entry": "Entry Level",
+    "junior": "Junior (1-3 yrs)",
+    "associate": "Junior (1-3 yrs)",
+    "mid": "Mid Level (3-5 yrs)",
+    "senior": "Senior (5+ yrs)",
+    "staff": "Senior (5+ yrs)",
+    "principal": "Senior (5+ yrs)",
+    "lead": "Lead / Manager",
+    "manager": "Lead / Manager",
+    "head": "Lead / Manager",
+    "director": "Lead / Manager"
+};
+
+const experienceOptions = [...new Set(Object.values(experienceLevelsList))]
+
+const jobTypesList = [
+    "Full-time", "Part-time", "Contract", "Freelance", "Internship"
+]
+
+const MultiSelect = ({ options, value, onChange, placeholder, label }) => {
+    const [query, setQuery] = useState("")
+    const [isOpen, setIsOpen] = useState(false)
+    const containerRef = useRef(null)
+
+    const filteredOptions = useMemo(() => {
+        return options.filter(option =>
+            option.toLowerCase().includes(query.toLowerCase()) &&
+            !value.includes(option)
+        )
+    }, [options, query, value])
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (containerRef.current && !containerRef.current.contains(event.target)) {
+                setIsOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
+
+    const handleSelect = (option) => {
+        onChange([...value, option])
+        setQuery("")
+    }
+
+    const handleRemove = (option) => {
+        onChange(value.filter(item => item !== option))
+    }
+
+    return (
+        <div className="space-y-2 w-full" ref={containerRef}>
+            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">{label}</label>
+            <div
+                className="relative flex min-h-[42px] w-full flex-wrap items-center gap-2 rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm ring-offset-white focus-within:ring-2 focus-within:ring-neutral-950 focus-within:ring-offset-2 dark:border-neutral-800 dark:bg-neutral-950 dark:ring-offset-neutral-950 dark:focus-within:ring-neutral-300 transition-shadow duration-200"
+                onClick={() => setIsOpen(true)}
+            >
+                {value.length > 0 && value.map((item) => (
+                    <Badge key={item} variant="secondary" className="hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors">
+                        {item}
+                        <button
+                            className="ml-1 rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleRemove(item)
+                                }
+                            }}
+                            onMouseDown={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                            }}
+                            onClick={() => handleRemove(item)}
+                        >
+                            <X className="h-3 w-3 text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-50" />
+                        </button>
+                    </Badge>
+                ))}
+
+                <input
+                    className="flex-1 bg-transparent outline-none placeholder:text-neutral-400 min-w-[100px]"
+                    placeholder={value.length === 0 ? placeholder : ""}
+                    value={query}
+                    onChange={(e) => {
+                        setQuery(e.target.value)
+                        setIsOpen(true)
+                    }}
+                    onFocus={() => setIsOpen(true)}
+                />
+            </div>
+
+            {isOpen && (filteredOptions.length > 0 || query) && (
+                <div className="absolute z-50 mt-1 max-h-52 w-full overflow-y-auto rounded-md border border-neutral-200 bg-white text-neutral-950 shadow-md animate-in fade-in-0 zoom-in-95 dark:border-neutral-800 dark:bg-neutral-950 dark:text-neutral-50">
+                    <div className="p-1">
+                        {filteredOptions.length === 0 ? (
+                            <p className="p-2 text-sm text-neutral-500 text-center">No results found.</p>
+                        ) : (
+                            filteredOptions.map((option) => (
+                                <div
+                                    key={option}
+                                    className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                                    onClick={() => handleSelect(option)}
+                                >
+                                    {option}
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
 
 const Onboarding = () => {
     const { user } = useUser()
     const navigate = useNavigate()
     const [selectedRole, setSelectedRole] = useState("")
+    const [selectedExperienceLevel, setSelectedExperienceLevel] = useState("")
+    const [selectedJobTypes, setSelectedJobTypes] = useState([])
     const [selectedSkills, setSelectedSkills] = useState([])
     const [selectedCountries, setSelectedCountries] = useState([])
     const [selectedCompanies, setSelectedCompanies] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
 
-    const toggleSkill = (skill) => {
-        if (selectedSkills.includes(skill)) {
-            setSelectedSkills(prev => prev.filter(s => s !== skill))
+    const toggleJobType = (type) => {
+        if (selectedJobTypes.includes(type)) {
+            setSelectedJobTypes(prev => prev.filter(t => t !== type))
         } else {
-            setSelectedSkills(prev => [...prev, skill])
+            setSelectedJobTypes(prev => [...prev, type])
         }
     }
 
@@ -58,42 +193,45 @@ const Onboarding = () => {
     }
 
     const handleSubmit = async () => {
-        if (!selectedRole) return
+        if (!selectedRole || !selectedExperienceLevel || selectedJobTypes.length === 0) return
 
         setIsSubmitting(true)
         try {
-            console.log("Onboarding Data:", { role: selectedRole, skills: selectedSkills })
+            const onboardingData = {
+                role: selectedRole,
+                experienceLevel: selectedExperienceLevel,
+                jobTypes: selectedJobTypes,
+                skills: selectedSkills,
+                countries: selectedCountries,
+                companies: selectedCompanies
+            }
+            console.log("Onboarding Data:", onboardingData)
 
             if (user) {
                 try {
                     await user.update({
                         unsafeMetadata: {
                             onboarded: true,
-                            role: selectedRole,
-                            skills: selectedSkills,
-                            countries: selectedCountries,
-                            companies: selectedCompanies
+                            ...onboardingData
                         }
                     })
                 } catch (err) {
-                    console.warn("Could not update metadata (likely restricted permissions):", err)
+                    console.warn("Could not update metadata:", err)
                 }
             }
             await axios.post(`${import.meta.env.VITE_SERVER_API}/api/user/onboarding`, {
                 clerkId: user.id,
-                role: selectedRole,
-                skills: selectedSkills,
-                countries: selectedCountries,
-                companies: selectedCompanies
+                ...onboardingData
             })
 
-            await axios.post('http://localhost:5678/webhook/get-filtered-jobs', {
-                userId: user.id,
-                role: selectedRole,
-                skills: selectedSkills,
-                countries: selectedCountries,
-                companies: selectedCompanies
-            })
+            try {
+                await axios.post('http://localhost:5678/webhook-test/get-filtered-jobs', {
+                    userId: user.id,
+                    ...onboardingData
+                })
+            } catch (webhookErr) {
+                console.warn("Webhook failed:", webhookErr)
+            }
 
             navigate("/dashboard")
         } catch (error) {
@@ -104,72 +242,86 @@ const Onboarding = () => {
     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-white dark:bg-neutral-950 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-8 md:p-12 animate-in fade-in zoom-in duration-500">
-                <div className="text-center mb-10">
-                    <h1 className="text-3xl md:text-4xl font-bold bg-linear-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent mb-4">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900 flex flex-col items-center justify-center p-4 md:p-8">
+            <div className="w-full max-w-5xl bg-white dark:bg-neutral-950 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-6 md:p-10 animate-in fade-in zoom-in duration-500">
+                <div className="text-center mb-8">
+                    <h1 className="text-3xl font-bold bg-linear-to-r from-neutral-900 to-neutral-600 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent mb-3">
                         Welcome, {user?.firstName || "there"}!
                     </h1>
-                    <p className="text-neutral-500 dark:text-neutral-400 text-lg">
-                        Let's personalize your experience. Tell us about your professional interests.
+                    <p className="text-neutral-500 dark:text-neutral-400">
+                        Help us tailor your job feed by answering a few quick questions.
                     </p>
                 </div>
 
-                <div className="space-y-10">
-                    {/* Role Selection */}
-                    <div className="space-y-4">
-                        <label className="text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                            What role are you looking for?
-                        </label>
-                        <div className="flex flex-wrap gap-3">
-                            {rolesList.map((role) => (
-                                <button
-                                    key={role}
-                                    onClick={() => setSelectedRole(role)}
-                                    className={`
-                                        px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border
-                                        ${selectedRole === role
-                                            ? "bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-neutral-900 dark:border-white shadow-lg scale-105"
-                                            : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"}
-                                    `}
-                                >
-                                    {role}
-                                </button>
-                            ))}
+                <div className="space-y-8">
+                    {/* Top Section: Role & Experience */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Desired Role <span className="text-red-500">*</span>
+                            </label>
+                            <Select
+                                value={selectedRole}
+                                onChange={setSelectedRole}
+                                options={rolesList}
+                                placeholder="Select a role"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Experience Level <span className="text-red-500">*</span>
+                            </label>
+                            <Select
+                                value={selectedExperienceLevel}
+                                onChange={setSelectedExperienceLevel}
+                                options={experienceOptions}
+                                placeholder="Select level"
+                            />
                         </div>
                     </div>
 
-                    {/* Skills Selection */}
-                    <div className="space-y-4">
-                        <label className="text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                            Select your key skills ({selectedSkills.length})
+                    {/* Job Types - Pills */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Job Type <span className="text-red-500">*</span>
                         </label>
                         <div className="flex flex-wrap gap-2">
-                            {skillsList.map((skill) => {
-                                const isSelected = selectedSkills.includes(skill)
+                            {jobTypesList.map((type) => {
+                                const isSelected = selectedJobTypes.includes(type)
                                 return (
                                     <button
-                                        key={skill}
-                                        onClick={() => toggleSkill(skill)}
+                                        key={type}
+                                        onClick={() => toggleJobType(type)}
                                         className={`
-                                            px-3 py-1.5 rounded-md text-sm transition-all duration-200 border
+                                            px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border
                                             ${isSelected
-                                                ? "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800"
-                                                : "bg-transparent text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700"}
+                                                ? "bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-neutral-900 dark:border-white shadow-sm"
+                                                : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"}
                                         `}
                                     >
-                                        {skill}
-                                        {isSelected && <span className="ml-2">×</span>}
+                                        {type}
                                     </button>
                                 )
                             })}
                         </div>
                     </div>
 
-                    {/* Country Selection */}
-                    <div className="space-y-4">
-                        <label className="text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                            Preferred Countries ({selectedCountries.length})
+                    <div className="h-px bg-neutral-100 dark:bg-neutral-800" />
+
+                    {/* Multi-Select for Skills */}
+                    <MultiSelect
+                        label="Key Skills"
+                        placeholder="Type to search skills (e.g. React, Python)..."
+                        options={skillsList}
+                        value={selectedSkills}
+                        onChange={setSelectedSkills}
+                    />
+
+                    {/* Countries - Buttons */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Preferred Countries
                         </label>
                         <div className="flex flex-wrap gap-2">
                             {countriesList.map((country) => {
@@ -179,24 +331,23 @@ const Onboarding = () => {
                                         key={country}
                                         onClick={() => toggleCountry(country)}
                                         className={`
-                                            px-3 py-1.5 rounded-md text-sm transition-all duration-200 border
+                                            px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border
                                             ${isSelected
-                                                ? "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800"
-                                                : "bg-transparent text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700"}
+                                                ? "bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-neutral-900 dark:border-white shadow-sm"
+                                                : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"}
                                         `}
                                     >
                                         {country}
-                                        {isSelected && <span className="ml-2">×</span>}
                                     </button>
                                 )
                             })}
                         </div>
                     </div>
 
-                    {/* Company Selection */}
-                    <div className="space-y-4">
-                        <label className="text-sm font-medium uppercase tracking-wider text-neutral-500 dark:text-neutral-400">
-                            Target Companies ({selectedCompanies.length})
+                    {/* Companies - Buttons */}
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                            Target Companies
                         </label>
                         <div className="flex flex-wrap gap-2">
                             {companiesList.map((company) => {
@@ -206,35 +357,34 @@ const Onboarding = () => {
                                         key={company}
                                         onClick={() => toggleCompany(company)}
                                         className={`
-                                            px-3 py-1.5 rounded-md text-sm transition-all duration-200 border
+                                            px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border
                                             ${isSelected
-                                                ? "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-800"
-                                                : "bg-transparent text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700"}
+                                                ? "bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-neutral-900 dark:border-white shadow-sm"
+                                                : "bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400 dark:bg-neutral-900 dark:text-neutral-400 dark:border-neutral-800 dark:hover:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"}
                                         `}
                                     >
                                         {company}
-                                        {isSelected && <span className="ml-2">×</span>}
                                     </button>
                                 )
                             })}
                         </div>
                     </div>
 
-                    <div className="pt-6 border-t border-neutral-100 dark:border-neutral-900 flex justify-end">
+                    <div className="pt-4 flex justify-end">
                         <Button
                             size="lg"
                             onClick={handleSubmit}
-                            disabled={!selectedRole || isSubmitting}
-                            className="w-full md:w-auto min-w-[150px]"
+                            disabled={!selectedRole || !selectedExperienceLevel || selectedJobTypes.length === 0 || isSubmitting}
+                            className="w-full md:w-auto min-w-[200px]"
                         >
-                            {isSubmitting ? "Saving..." : "Complete Setup"}
+                            {isSubmitting ? "Saving..." : "Start Exploring Jobs"}
                         </Button>
                     </div>
                 </div>
             </div>
 
             <p className="mt-8 text-neutral-400 text-sm text-center">
-                You can change these settings later from your profile.
+                You can always update these preferences later in Settings.
             </p>
         </div>
     )
