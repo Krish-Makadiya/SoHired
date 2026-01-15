@@ -1,5 +1,4 @@
 # SoHired 🚀
-> *Team Commited*
 
 *SoHired* bridges the gap between modern "Swipe Culture" and legacy hiring platforms. It is an intelligent job application ecosystem that turns the tedious 20-minute application process into a 2-second gesture.
 
