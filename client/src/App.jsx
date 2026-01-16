@@ -13,7 +13,6 @@ import RejectedJobs from "./pages/Careers/RejectedJobs";
 import Roadmaps from "./pages/Careers/Roadmaps";
 
 const App = () => {
-
     return (
         <Routes>
             <Route path="/" element={<Landing />} />    

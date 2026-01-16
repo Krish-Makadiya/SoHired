@@ -121,7 +121,6 @@ const MyProfile = () => {
 
             console.log("Resume Parsed Data:", response.data);
             setFormData(response.data);
-
         } catch (error) {
             console.error("Error parsing resume:", error);
         } finally {

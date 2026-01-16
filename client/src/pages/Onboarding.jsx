@@ -1,11 +1,11 @@
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Select } from "@/components/ui/select"
 import { useUser } from "@clerk/clerk-react"
 import axios from "axios"
-import { useState, useMemo, useRef, useEffect } from "react"
+import { FileText, Loader2, X } from "lucide-react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { X } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Select } from "@/components/ui/select"
 
 const rolesList = [
     "Frontend Developer", "Backend Developer", "Fullstack Developer",
@@ -167,6 +167,8 @@ const Onboarding = () => {
     const [selectedCountries, setSelectedCountries] = useState([])
     const [selectedCompanies, setSelectedCompanies] = useState([])
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isUploading, setIsUploading] = useState(false);
+
 
     const toggleJobType = (type) => {
         if (selectedJobTypes.includes(type)) {
@@ -191,6 +193,43 @@ const Onboarding = () => {
             setSelectedCompanies(prev => [...prev, company])
         }
     }
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const data = new FormData();
+        data.append('file', file);
+
+        try {
+            const response = await axios.post('http://localhost:5678/webhook-test/parse-resume', data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+            console.log("Resume Parsed Data:", response.data);
+
+            const payload = {
+                ...response.data.resumeData,
+                clerkId: user?.id,
+                imageUrl: user?.imageUrl
+            }
+
+            const res = await axios.post(`${import.meta.env.VITE_SERVER_API}/api/user/user-profile`, payload)
+
+            setSelectedRole(response.data.jobPreferences.selectedRole);
+            setSelectedExperienceLevel(response.data.jobPreferences.selectedExperienceLevel);
+            setSelectedJobTypes(response.data.jobPreferences.selectedJobTypes)
+            setSelectedSkills(response.data.jobPreferences.selectedSkills)
+            
+        } catch (error) {
+            console.error("Error parsing resume:", error);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleSubmit = async () => {
         if (!selectedRole || !selectedExperienceLevel || selectedJobTypes.length === 0) return
@@ -251,6 +290,32 @@ const Onboarding = () => {
                     <p className="text-neutral-500 dark:text-neutral-400">
                         Help us tailor your job feed by answering a few quick questions.
                     </p>
+                </div>
+
+                <div className="flex justify-end mb-4">
+                    <input
+                        type="file"
+                        id="resume-upload"
+                        className="hidden"
+                        accept=".pdf,.doc,.docx"
+                        onChange={handleFileUpload}
+                    />
+                    <label htmlFor="resume-upload">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white border-0 shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 gap-2 cursor-pointer"
+                            onClick={() => document.getElementById('resume-upload').click()}
+                            disabled={isUploading}
+                        >
+                            {isUploading ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <FileText className="h-4 w-4" />
+                            )}
+                            {isUploading ? "Parsing Resume..." : "Import from Resume"}
+                        </Button>
+                    </label>
                 </div>
 
                 <div className="space-y-8">
