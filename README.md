@@ -1,5 +1,4 @@
 # SoHired 🚀
-> *Team Commited* | TechSprint Open Innovation Hackathon
 
 *SoHired* bridges the gap between modern "Swipe Culture" and legacy hiring platforms. It is an intelligent job application ecosystem that turns the tedious 20-minute application process into a 2-second gesture.
 
@@ -10,7 +9,7 @@
 * *The Volume Reality:* In the current market, students often need to apply to 50+ roles just to secure one interview.
 * *The Bottleneck:* Users waste hours manually re-typing the same Name, Education, and Experience data for every single job link.
 
-## 💡 The Solution: "ThirdEye" Architecture
+## 💡 The Solution: "SoHired" Architecture
 SoHired replaces the "Search & Type" method with a "Swipe & Solve" workflow.
 
 1.  *Gamified Swipe UI:* A React-based web app where users swipe *Right* to queue an application and *Left* to discard. This cures "Choice Paralysis".
