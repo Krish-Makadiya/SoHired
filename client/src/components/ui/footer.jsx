@@ -9,7 +9,7 @@ export function Footer({
     copyright
 }) {
     return (
-        <footer className="pb-6 pt-24 lg:pb-8 lg:pt-30">
+        <footer className="pb-6 lg:pb-8">
             <div className="px-4 lg:px-8">
                 <div className="md:flex md:items-start md:justify-between">
                     <a href="/" className="flex items-center gap-x-2" aria-label={brandName}>
