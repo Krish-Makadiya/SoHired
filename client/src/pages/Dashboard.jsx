@@ -96,7 +96,7 @@ const Dashboard = () => {
 
             if (window.chrome && chrome.runtime) {
                 // 3. Send the message
-                chrome.runtime.sendMessage("iobcmkfkokblfjghlmlemaoabgloijlk", {
+                chrome.runtime.sendMessage("mnkbodchklclmmafaclmnjcblmdpgfob", {
                     action: "TRIGGER_AUTOFILL",
                     url: job.link,
                     payload: staticData

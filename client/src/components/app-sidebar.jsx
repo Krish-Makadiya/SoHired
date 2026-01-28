@@ -3,6 +3,7 @@
 import {
     BookOpen,
     Bot,
+    FileText,
     Frame,
     GalleryVerticalEnd,
     GraduationCap,
@@ -52,6 +53,29 @@ const data = {
                     title: "Roadmaps",
                     url: "/dashboard/roadmaps",
                 },
+            ],
+        },
+        {
+            title: "Resume AI",
+            url: "#",
+            icon: FileText,
+            items: [
+                {
+                    title: "ATS Scanner",
+                    url: "/dashboard/ats-scanner",
+                },
+                // {
+                //     title: "Resume Builder",
+                //     url: "/dashboard/resume-builder",
+                // },
+                // {
+                //     title: "Cover Letter Gen",
+                //     url: "/dashboard/cover-letters",
+                // },
+                // {
+                //     title: "Version History",
+                //     url: "/dashboard/resume-versions",
+                // }
             ],
         },
         {

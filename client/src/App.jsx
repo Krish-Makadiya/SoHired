@@ -11,6 +11,10 @@ import CourseSuggestions from "./pages/Careers/CourseSuggestions";
 import AcceptedJobs from "./pages/Careers/AcceptedJobs";
 import RejectedJobs from "./pages/Careers/RejectedJobs";
 import Roadmaps from "./pages/Careers/Roadmaps";
+import ATSScanner from "./pages/ResumeAI/ATSScanner";
+import ResumeBuilder from "./pages/ResumeAI/ResumeBuilder";
+import CoverLetters from "./pages/ResumeAI/CoverLetters";
+import ResumeVersions from "./pages/ResumeAI/ResumeVersions";
 
 const App = () => {
     return (
@@ -68,6 +72,28 @@ const App = () => {
                         <Roadmaps />
                     </ProtectedRoute>
                 } />
+
+
+                <Route path="ats-scanner" element={
+                    <ProtectedRoute>
+                        <ATSScanner />
+                    </ProtectedRoute>
+                } />
+                {/* <Route path="resume-builder" element={
+                    <ProtectedRoute>
+                        <ResumeBuilder />
+                    </ProtectedRoute>
+                } />
+                <Route path="cover-letters" element={
+                    <ProtectedRoute>
+                        <CoverLetters />
+                    </ProtectedRoute>
+                } />
+                <Route path="resume-versions" element={
+                    <ProtectedRoute>
+                        <ResumeVersions />
+                    </ProtectedRoute>
+                } /> */}
             </Route>
         </Routes>
     );
