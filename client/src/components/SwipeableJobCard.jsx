@@ -2,9 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { motion, useMotionValue, useTransform } from "framer-motion";
-import { Building2, Calendar, CircleCheckBig, CircleX, ExternalLink, Globe, MapPin } from "lucide-react";
+import { Building2, Calendar, CircleCheckBig, CircleX, ExternalLink, Globe, MapPin, Sparkle, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export function SwipeableJobCard({ job, onSwipe, style }) {
+    const navigate = useNavigate();
     const x = useMotionValue(0);
     const rotate = useTransform(x, [-200, 200], [-10, 10]);
     const opacity = useTransform(x, [-200, -100, 0, 100, 200], [0, 1, 1, 1, 0]);
@@ -107,12 +109,31 @@ export function SwipeableJobCard({ job, onSwipe, style }) {
                                 </div>
                             </div>
 
-                            <Button size="lg" className="w-full gap-2 text-base font-bold h-14 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all rounded-xl" asChild>
-                                <a href={job.link} target="_blank" rel="noopener noreferrer">
-                                    Apply Now
-                                    <ExternalLink className="w-5 h-5" />
-                                </a>
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button size="lg" className="w-full gap-2 text-base font-bold h-14 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all rounded-xl" asChild>
+                                    <a href={job.link} target="_blank" rel="noopener noreferrer">
+                                        Apply Now
+                                        <ExternalLink className="w-5 h-5" />
+                                    </a>
+                                </Button>
+                                <Button
+                                    size="lg"
+                                    className="w-full gap-2 text-base font-bold h-14 shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all rounded-xl"
+                                    onClick={() => {
+                                        // Strip HTML tags from description
+                                        const parser = new DOMParser();
+                                        const doc = parser.parseFromString(job.description || "", 'text/html');
+                                        const cleanDescription = doc.body.textContent || "";
+
+                                        navigate('/dashboard/ats-scanner', {
+                                            state: { jobDescription: cleanDescription }
+                                        });
+                                    }}
+                                >
+                                    Analyze Resume
+                                    <Sparkles className="w-5 h-5" />
+                                </Button>
+                            </div>
                         </div>
                     </CardHeader>
 

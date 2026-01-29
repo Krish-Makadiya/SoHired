@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import {
     Upload, FileText, CheckCircle, AlertCircle, Info,
     TrendingUp, Target, Brain, Zap, Loader2, X
@@ -8,8 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import axios from 'axios';
 
-// Mock Data from the prompt
 const MOCK_RESULT = [
     {
         "atsScore": 93,
@@ -77,11 +80,19 @@ const InfoTrigger = ({ content }) => (
 );
 
 const ScoreCircle = ({ score }) => {
-    const radius = 60;
-    const stroke = 12;
+    const radius = 100;
+    const stroke = 16;
     const normalizedRadius = radius - stroke * 2;
     const circumference = normalizedRadius * 2 * Math.PI;
     const strokeDashoffset = circumference - (score / 100) * circumference;
+
+    const count = useMotionValue(0);
+    const rounded = useTransform(count, Math.round);
+
+    useEffect(() => {
+        const animation = animate(count, score, { duration: 1.5, ease: "easeOut" });
+        return animation.stop;
+    }, [score]);
 
     return (
         <div className="relative flex items-center justify-center p-4">
@@ -109,17 +120,14 @@ const ScoreCircle = ({ score }) => {
                     r={normalizedRadius}
                     cx={radius}
                     cy={radius}
-                    style={{ strokeDasharray: circumference + ' ' + circumference }}
+                    strokeDasharray={`${circumference} ${circumference}`}
                 />
             </svg>
             <div className="absolute flex flex-col items-center">
                 <motion.span
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.5 }}
                     className="text-4xl font-bold font-['Titan_One'] text-primary"
                 >
-                    {score}
+                    {rounded}
                 </motion.span>
                 <span className="text-xs text-muted-foreground font-semibold">ATS SCORE</span>
             </div>
@@ -132,6 +140,14 @@ const ATSScanner = () => {
     const [isDragging, setIsDragging] = useState(false);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
+    const [jobDescription, setJobDescription] = useState("");
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.jobDescription) {
+            setJobDescription(location.state.jobDescription);
+        }
+    }, [location.state]);
 
     const handleDrag = (e) => {
         e.preventDefault();
@@ -158,14 +174,34 @@ const ATSScanner = () => {
         }
     };
 
-    const handleScan = () => {
-        if (!file) return;
+    const handleScan = async () => {
+        if (!file || !jobDescription) return;
         setLoading(true);
-        // Simulate API call
-        setTimeout(() => {
-            setResult(MOCK_RESULT[0]);
+
+        // Simulate API call payload construction
+        const formData = new FormData();
+        formData.append('resume', file);
+        formData.append('jobDescription', jobDescription);
+
+        console.log("Submitting Scan:", {
+            fileName: file.name,
+            jobDescription: jobDescription
+        });
+
+        try {
+            const response = await axios.post('http://localhost:5678/webhook-test/d3ba70b8-fc36-4be6-b4f2-01817cfdf1ab', formData);
+            console.log(response.data[0]);
+            setResult(response.data[0]);
+        } catch (error) {
+            console.error('Error scanning resume:', error);
+        } finally {
             setLoading(false);
-        }, 2500);
+        }
+
+        // setTimeout(() => {
+        //     setResult(MOCK_RESULT[0]);
+        //     setLoading(false);
+        // }, 2500);
     };
 
     const resetScanner = () => {
@@ -174,8 +210,7 @@ const ATSScanner = () => {
     };
 
     return (
-        <div className="min-h-screen p-6 md:p-10 space-y-12 max-w-7xl mx-auto">
-
+        <div className="min-h-screen p-6 md:p-10 space-y-12 w-7xl mx-auto">
             {/* Header */}
             <div className="space-y-4">
                 <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight font-['Titan_One'] text-foreground">
@@ -195,53 +230,102 @@ const ATSScanner = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
                         transition={{ duration: 0.4 }}
-                        className="flex flex-col items-center justify-center p-12 border-2 border-dashed border-border rounded-3xl bg-card/30 hover:bg-card/50 transition-colors backdrop-blur-sm"
-                        onDragEnter={handleDrag}
-                        onDragLeave={handleDrag}
-                        onDragOver={handleDrag}
-                        onDrop={handleDrop}
+                        className="space-y-8"
                     >
-                        <input
-                            type="file"
-                            id="resume-upload"
-                            className="hidden"
-                            accept=".pdf,.docx,.doc"
-                            onChange={handleFileChange}
-                        />
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-[400px]">
+                            {/* Job Description Input */}
+                            <div className="space-y-4 col-span-2 flex flex-col h-full bg-card/30 p-6 rounded-3xl border border-border/50 backdrop-blur-sm shadow-xs">
+                                <Label htmlFor="job-description" className="text-lg font-semibold flex items-center gap-2">
+                                    <FileText className="w-5 h-5 text-primary" />
+                                    Job Description
+                                </Label>
+                                <Textarea
+                                    id="job-description"
+                                    placeholder="Paste the job description here..."
+                                    className="flex-1 resize-none bg-background/50 border-input/50 focus:border-primary/50 text-base leading-relaxed"
+                                    value={jobDescription}
+                                    onChange={(e) => setJobDescription(e.target.value)}
+                                />
+                            </div>
 
-                        <div className={`
-              rounded-full p-8 mb-6 transition-all duration-300
-              ${isDragging ? 'bg-primary/20 scale-110' : 'bg-secondary/50'}
-            `}>
-                            <Upload className={`w-12 h-12 ${isDragging ? 'text-primary' : 'text-muted-foreground'}`} />
+                            {/* Resume Upload Dropzone */}
+                            <div
+                                className={`
+                                    relative flex flex-col items-center justify-center p-8 
+                                    border-2 border-dashed rounded-3xl transition-all duration-300 h-full
+                                    cursor-pointer overflow-hidden
+                                    ${isDragging
+                                        ? 'border-primary bg-primary/5 scale-[1.02] shadow-xl shadow-primary/10'
+                                        : 'border-border bg-card/30 hover:bg-card/50 hover:border-primary/30'
+                                    }
+                                    ${file ? 'border-green-500/50 bg-green-500/5' : ''}
+                                `}
+                                onDragEnter={handleDrag}
+                                onDragLeave={handleDrag}
+                                onDragOver={handleDrag}
+                                onDrop={handleDrop}
+                                onClick={() => document.getElementById('resume-upload').click()}
+                            >
+                                <input
+                                    type="file"
+                                    id="resume-upload"
+                                    className="hidden"
+                                    accept=".pdf,.docx,.doc"
+                                    onChange={handleFileChange}
+                                />
+
+                                <div className="absolute inset-0 bg-grid-white/10 mask-[linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10" />
+
+                                <div className={`
+                                    rounded-full p-6 mb-6 transition-all duration-300 shadow-lg
+                                    ${isDragging ? 'bg-primary text-primary-foreground scale-110' : 'bg-background text-muted-foreground'}
+                                    ${file ? 'bg-green-500 text-white' : ''}
+                                `}>
+                                    {file ? <CheckCircle className="w-10 h-10" /> : <Upload className="w-10 h-10" />}
+                                </div>
+
+                                <div className="space-y-2 text-center z-10 px-4">
+                                    <h3 className="text-xl font-bold tracking-tight">
+                                        {file ? "Resume Uploaded" : "Drop Resume Here"}
+                                    </h3>
+                                    <p className="text-sm text-muted-foreground max-w-[240px] mx-auto leading-relaxed">
+                                        {file ? file.name : "Upload your PDF or DOCX resume to match against the job description."}
+                                    </p>
+                                </div>
+
+                                {file && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="mt-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 z-20"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setFile(null);
+                                        }}
+                                    >
+                                        Remove File
+                                    </Button>
+                                )}
+                            </div>
                         </div>
 
-                        <h3 className="text-2xl font-semibold mb-2 text-center">
-                            {file ? file.name : "Drag & drop your resume here"}
-                        </h3>
-                        <p className="text-muted-foreground text-center mb-8 max-w-md">
-                            {file ? "Ready to analyze? Click the button below." : "Supported formats: PDF, DOCX. Max file size: 5MB."}
-                        </p>
-
-                        <div className="flex gap-4">
-                            {file && (
-                                <Button variant="outline" size="lg" onClick={() => setFile(null)}>
-                                    Remove
-                                </Button>
-                            )}
+                        <div className="flex justify-center pt-4">
                             <Button
                                 size="lg"
-                                className="px-8 min-w-[200px] text-lg font-medium shadow-lg shadow-primary/20"
-                                onClick={file ? handleScan : () => document.getElementById('resume-upload').click()}
-                                disabled={loading}
+                                className="px-12 py-6 text-lg font-bold shadow-xl shadow-primary/25 rounded-full transition-all hover:scale-105 active:scale-95 disabled:hover:scale-100"
+                                onClick={handleScan}
+                                disabled={loading || !file || !jobDescription.trim()}
                             >
                                 {loading ? (
                                     <>
                                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                        Analyzing...
+                                        Analyzing Match...
                                     </>
                                 ) : (
-                                    file ? "Start Analysis" : "Browse Files"
+                                    <>
+                                        <Zap className="mr-2 h-5 w-5 fill-current" />
+                                        Scan & Match
+                                    </>
                                 )}
                             </Button>
                         </div>

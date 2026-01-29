@@ -69,7 +69,7 @@ const CourseSuggestions = () => {
                 context: `Roadmap for ${job.title} at ${job.companyName}`
             };
 
-            const res = await axios.post('http://localhost:5678/webhook-test/get-roadmap', payload);
+            const res = await axios.post('http://localhost:5678/webhook/get-roadmap', payload);
             console.log("Roadmap Generation Response:", res);
         } catch (error) {
             console.error("Error generating roadmap:", error);

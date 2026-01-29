@@ -203,7 +203,7 @@ const Onboarding = () => {
         data.append('file', file);
 
         try {
-            const response = await axios.post('http://localhost:5678/webhook-test/parse-resume', data, {
+            const response = await axios.post('http://localhost:5678/webhook/parse-resume', data, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -223,7 +223,7 @@ const Onboarding = () => {
             setSelectedExperienceLevel(response.data.jobPreferences.selectedExperienceLevel);
             setSelectedJobTypes(response.data.jobPreferences.selectedJobTypes)
             setSelectedSkills(response.data.jobPreferences.selectedSkills)
-            
+
         } catch (error) {
             console.error("Error parsing resume:", error);
         } finally {
@@ -264,7 +264,7 @@ const Onboarding = () => {
             })
 
             try {
-                await axios.post('http://localhost:5678/webhook-test/get-filtered-jobs', {
+                await axios.post('http://localhost:5678/webhook/get-filtered-jobs', {
                     userId: user.id,
                     ...onboardingData
                 })
