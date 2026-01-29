@@ -189,7 +189,7 @@ const ATSScanner = () => {
         });
 
         try {
-            const response = await axios.post('http://localhost:5678/webhook-test/d3ba70b8-fc36-4be6-b4f2-01817cfdf1ab', formData);
+            const response = await axios.post('http://localhost:5678/webhook/d3ba70b8-fc36-4be6-b4f2-01817cfdf1ab', formData);
             console.log(response.data[0]);
             setResult(response.data[0]);
         } catch (error) {
@@ -197,11 +197,6 @@ const ATSScanner = () => {
         } finally {
             setLoading(false);
         }
-
-        // setTimeout(() => {
-        //     setResult(MOCK_RESULT[0]);
-        //     setLoading(false);
-        // }, 2500);
     };
 
     const resetScanner = () => {
